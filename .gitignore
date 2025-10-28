@@ -1,6 +1,6 @@
 *.jpeg
 *.jpg
-*.txt
 yolov7/*
 .DS_Store
 *.cache
+.venv/
