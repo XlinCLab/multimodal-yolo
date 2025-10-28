@@ -1,5 +1,7 @@
+## Introduction
 This repository has a Python script to extract frames of interest, recognize objects on the shelf and get pixel coordinates for each object.
 We will get object positions by matching object pixel coordinates to surface coordinates in the main pipeline in Julia.
+
 ## Installation
 To be able to use the model you need to install Docker, please find the instructions here:
 https://www.docker.com
