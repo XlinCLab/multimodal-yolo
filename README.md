@@ -8,6 +8,12 @@ The weights for the pretrained model are in the last.pt file available here:
 ((https://drive.google.com/file/d/1mdHN0H1R7he6FCpdLfH9jY5eXgwWjVr2/view?usp=sharing))
 If you want to train your own model, you will need to annotate around 250 pictures in Yolo format, you may consider using this annotator for example:
 https://hub.docker.com/r/heartexlabs/label-studio
+It runs in docker:
+ copy the docker pull command, run it in the terminal, then run the container:
+    docker pull heartexlabs/label-studio:latest
+    docker run -it -p 8080:8080 -v `pwd`/mydata:/label-studio/data heartexlabs/label-studio:latest
+
+go to the http://0.0.0.0:8080/ - and there is you annotator!
 
 To be able to run the python script, you would need to install pandas and OpenCV libraries for Python.
 
