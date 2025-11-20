@@ -27,12 +27,13 @@ To run the Python script, you need to install the dependencies into a virtual en
 ## Frames extraction
 The Python frame extraction module is used after you have created the `frame_numbers_corrected_with_tokens.csv` file with the aggregated data on all points of interest that you have in the experiment. Initially, these are moments of the target object onset pronounced by the director. 
 
-Once this file is ready, insert its path into the following line of `efficient_frames_extracting.py` (at the end of the file):
-
-```python
-frames = pd.read_csv('PATH TO YOUR ROOT FOLDER')
+Once this file is ready, pass its path as the `--input_csv` input argument to `efficient_frames_extracting.py`, e.g.
 ```
-This script will extract the frames from the videos, and save them to the folder `/data/images` in the root folder of this module (not in the main pipeline module). Ensure your `docker-compose.detect.yml` file has the correct path to these frames (it is by default).
+python efficient_frames_extracting.py --input_csv /path/to/your/frame_numbers_corrected_with_tokens.csv --outdir /path/to/data/output/directory --max_workers 4
+```
+This script will extract the frames from the videos in parallel (specify more or less parallelization according to your available CPU with the `--max_workers` argument), and save them to the folder `/data/images` below a specified output directory (`--outdir` argument).
+
+Ensure your `docker-compose.detect.yml` file has the correct path to these frames (it is by default).
 
 ## Object recognition
 Then object positions can be detected in these video frames using the YOLO computer vision model. Ensure that the `docker-compose.detect.yml` has the right path to the weights for the model and the right path to your folder with the frames.
