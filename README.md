@@ -39,6 +39,12 @@ docker run -it -p 8080:8080 -v `pwd`/mydata:/label-studio/data heartexlabs/label
 ```
 Then open http://0.0.0.0:8080/ in a web browser and there is your annotator!
 
+To train the model on your annotated data, run:
+```
+docker compose -f docker-compose.train.yml build                                               
+docker compose -f docker-compose.train.yml up
+```
+
 # Running model components
 ## Frames extraction
 The Python frame extraction module is used after you have created the `frame_numbers_corrected_with_tokens.csv` file with the aggregated data on all points of interest that you have in the experiment. Initially, these are moments of the target object onset pronounced by the director. 
