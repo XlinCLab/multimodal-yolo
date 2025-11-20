@@ -8,10 +8,8 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# clone the yolov7 repository
-RUN git clone https://github.com/WongKinYiu/yolov7.git /yolov7
-
 # intall Python dependancies
+COPY yolov7 /yolov7
 WORKDIR /yolov7
 RUN pip install --no-cache-dir -r requirements.txt
 
