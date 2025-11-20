@@ -5,10 +5,32 @@ We will get object positions by matching object pixel coordinates to surface coo
 # Setup
 To run the model you need to have installed Docker. Please find the instructions here: https://www.docker.com
 
-## Pretrained model
-The weights for the pretrained model are in the `last.pt` file available [here on Google Drive](https://drive.google.com/file/d/1mdHN0H1R7he6FCpdLfH9jY5eXgwWjVr2/view?usp=sharing).
+## Python setup
+To run the Python script, you need to install the dependencies into a virtual environment. To achieve this, run the following command:
+```bash
+./setup_venv.sh && source .venv/bin/activate
+```
 
-## Training a new model
+## Downloading weights for pretrained models
+Weights for pretrained models are saved using [Git LFS (Large File Storage)](https://git-lfs.com/) under `pretrained_weights`.
+
+After cloning the repository, make sure Git LFS is installed on your system:
+```
+git lfs install
+```
+
+To fetch and download all LFS-tracked files, run:
+```
+git lfs fetch --all
+git lfs pull
+```
+
+You can verify which files are managed by LFS using:
+```
+git lfs ls-files
+```
+
+# Training a new model
 If you want to train your own model, you will need to annotate around 250 pictures in Yolo format, for example using [this annotator](https://hub.docker.com/r/heartexlabs/label-studio). Run in Docker using the following commands:
 ```
 docker pull heartexlabs/label-studio:latest
@@ -16,12 +38,6 @@ docker pull heartexlabs/label-studio:latest
 docker run -it -p 8080:8080 -v `pwd`/mydata:/label-studio/data heartexlabs/label-studio:latest
 ```
 Then open http://0.0.0.0:8080/ in a web browser and there is your annotator!
-
-## Python setup
-To run the Python script, you need to install the dependencies into a virtual environment. To achieve this, run the following command:
-```bash
-./setup_venv.sh && source .venv/bin/activate
-```
 
 # Running model components
 ## Frames extraction
