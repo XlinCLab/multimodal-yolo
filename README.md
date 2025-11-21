@@ -30,14 +30,14 @@ You can verify which files are managed by LFS using:
 git lfs ls-files
 ```
 
-# Training a new model
-If you want to train your own model, you will need to annotate around 250 pictures in Yolo format, for example using [this annotator](https://hub.docker.com/r/heartexlabs/label-studio). Run in Docker using the following commands:
+# Training a new object recognition model
+If you want to train your own object recognition model, you will need to annotate around 250 pictures in [YOLO format](https://roboflow.com/formats/yolo), for example using [this annotator from LabelStudio](https://hub.docker.com/r/heartexlabs/label-studio). Run the annotator in Docker using the following commands:
 ```
 docker pull heartexlabs/label-studio:latest
 
 docker run -it -p 8080:8080 -v `pwd`/mydata:/label-studio/data heartexlabs/label-studio:latest
 ```
-Then open http://0.0.0.0:8080/ in a web browser and there is your annotator!
+Then open http://0.0.0.0:8080/ in a web browser to access the annotator. Note that you may first need to create an account with [LabelStudio](http://0.0.0.0:8080/user/login/).
 
 To train the model on your annotated data, run:
 ```
@@ -46,7 +46,7 @@ docker compose -f docker-compose.train.yml up
 ```
 
 # Running model components
-## Frames extraction
+## Video frames extraction
 The Python frame extraction module is used after you have created the `frame_numbers_corrected_with_tokens.csv` file with the aggregated data on all points of interest that you have in the experiment. Initially, these are moments of the target object onset pronounced by the director. 
 
 Once this file is ready, pass its path as the `--input_csv` input argument to `efficient_frames_extracting.py`, e.g.
