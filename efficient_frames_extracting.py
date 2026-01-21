@@ -4,7 +4,7 @@
 import argparse
 import logging
 import os
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import cv2
 import pandas as pd
@@ -46,9 +46,22 @@ def main(input_csv: str, outdir: str, max_workers: int = 4, sep: str = ","):
     set_session = frames.groupby('video_path')
 
     # Use ThreadPoolExecutor to process videos in parallel
+    futures = {}
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         for video_path, video_frames in set_session:
-            executor.submit(extract_frames, video_path, video_frames, outdir)
+            logger.info(f"Submitting job <extract_frames> with:\n\tvideo_path={video_path}")
+            future = executor.submit(
+                extract_frames, video_path, video_frames, outdir
+            )
+            futures[future] = video_path
+
+    for future in as_completed(futures):
+        video_path = futures[future]
+        try:
+            result = future.result()
+            logger.info(f"Frame extraction completed successfully for video {video_path}")
+        except Exception as e:
+            logger.error(f"Frame extraction failed for video {video_path}\nFull error:", e)
 
 
 if __name__ == "__main__":
