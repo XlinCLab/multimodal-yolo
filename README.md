@@ -56,16 +56,17 @@ docker compose -f docker-compose.train.yml up
 The Python frame extraction module is used after you have created the `frame_numbers_corrected_with_tokens.csv` file with the aggregated data on all points of interest that you have in the experiment. Initially, these are moments of the target object onset pronounced by the director. 
 
 Once this file is ready, pass its path as the `--input_csv` input argument to `efficient_frames_extracting.py`, e.g.
-```
+```bash
 python efficient_frames_extracting.py --input_csv /path/to/your/frame_numbers_corrected_with_tokens.csv --outdir /path/to/data/output/directory --max_workers 4
 ```
 This script will extract the frames from the videos in parallel (specify more or less parallelization according to your available CPU with the `--max_workers` argument), and save them to a directory `frames` below a specified output directory (`--outdir` argument).
 
 Ensure your `docker-compose.detect.yml` file has the correct path to the directory containing these frames (`--outdir` argument to the Python script) under the `volumes` section, e.g.:
-```
+```yml
     volumes:
       - /path/to/your/outdir:/data
 ```
+Likewise, ensure the `docker-compose.detect.yml` file points to the (pretrained) weights `.pt` file which model training produced. The simplest way to achieve this is to copy this file into the `pretrained_weights` subfolder of this repo (if not already there), whose contents are automatically mounted as a volume to the Docker container.
 
 ## Object recognition
 Then object positions can be detected in these video frames using the YOLO computer vision model. Ensure that the `docker-compose.detect.yml` has the right path to the weights for the model and the right path to your folder with the frames.
@@ -76,7 +77,8 @@ Then object positions can be detected in these video frames using the YOLO compu
  docker compose -f docker-compose.detect.yml build
  docker compose -f docker-compose.detect.yml up
 ```
-The commands are also saved in the `commands` file. The first pair of commands is used to train the model, and the second pair (same as above) is used to detect objects with an already trained model.
+
+Note that (depending on your machine) running the `build` command may take upwards of 40 minutes to complete. 
 
 This will create a folder `labels` which will contain text files with pixel object coordinates for all objects for all frames. You will then need to insert the path to this folder into the `main.jl` file of the main pipeline.
 

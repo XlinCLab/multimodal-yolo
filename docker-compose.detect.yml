@@ -11,6 +11,8 @@ services:
       - <yourdataoutdir>:/data
       # path to yolov7 submodule (leave as is unless you have cloned yolov7 elsewhere)
       - ./yolov7/runs:/yolov7/runs
+      # path to pretrained weights
+      - ./pretrained_weights:/pretrained_weights
     environment:
       - PYTHONUNBUFFERED=1
     command:
@@ -20,7 +22,7 @@ services:
         "/data/frames", # path to mounted volume containing video frames
         #"/data/video", # you can recognize objects in video files with this model too
         "--weights",
-        "/yolov7/runs/train/exp6/weights/last.pt", # path to your weights file
+        "/pretrained_weights/last.pt", # path to your weights file
         "--conf",
         "0.30",  # confidence threshold (default is 0.25)
   #     "--img-size",
