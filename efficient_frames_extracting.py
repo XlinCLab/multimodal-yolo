@@ -60,7 +60,7 @@ def create_outdir(outdir) -> None:
                 if overwrite == "y":
                     os.makedirs(outdir, exist_ok=True)
                 else:
-                    logger.error("Aborting. Please rerun with a different specified outdir.")
+                    raise FileExistsError
 
             else:
                 os.makedirs(outdir, exist_ok=True)
@@ -72,7 +72,10 @@ def create_outdir(outdir) -> None:
 
 def main(input_csv: str, outdir: str, max_workers: int = 4, sep: str = ","):
     # Create outdir and check that results will not be accidentally overwritten
-    create_outdir(outdir)
+    try:
+        create_outdir(outdir)
+    except FileExistsError as e:
+        raise FileExistsError("Aborting. Please rerun with a different specified outdir.") from e
 
     # Initialize logging to log file
     file_handler = logging.FileHandler(os.path.join(outdir, "frame_extraction.log"))
