@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import cv2
 import pandas as pd
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s %(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -79,6 +79,9 @@ def main(input_csv: str, outdir: str, max_workers: int = 4, sep: str = ","):
 
     # Initialize logging to log file
     file_handler = logging.FileHandler(os.path.join(outdir, "frame_extraction.log"))
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s: %(message)s'
+    ))
     logger.addHandler(file_handler)
 
     # Read the CSV file with corrected frame numbers (at least 5 April tags)
