@@ -59,9 +59,13 @@ Once this file is ready, pass its path as the `--input_csv` input argument to `e
 ```
 python efficient_frames_extracting.py --input_csv /path/to/your/frame_numbers_corrected_with_tokens.csv --outdir /path/to/data/output/directory --max_workers 4
 ```
-This script will extract the frames from the videos in parallel (specify more or less parallelization according to your available CPU with the `--max_workers` argument), and save them to the folder `/data/images` below a specified output directory (`--outdir` argument).
+This script will extract the frames from the videos in parallel (specify more or less parallelization according to your available CPU with the `--max_workers` argument), and save them to a directory `frames` below a specified output directory (`--outdir` argument).
 
-Ensure your `docker-compose.detect.yml` file has the correct path to these frames (it is by default).
+Ensure your `docker-compose.detect.yml` file has the correct path to the directory containing these frames (`--outdir` argument to the Python script) under the `volumes` section, e.g.:
+```
+    volumes:
+      - /path/to/your/outdir:/data
+```
 
 ## Object recognition
 Then object positions can be detected in these video frames using the YOLO computer vision model. Ensure that the `docker-compose.detect.yml` has the right path to the weights for the model and the right path to your folder with the frames.

@@ -4,7 +4,12 @@ services:
   yolov7:
     build: .
     volumes:
-      - ./data:/data
+      # path to your folder containing extracted video frames
+      # replace "<yourdataoutdir>" with leading path e.g. "/home/username/Documents/testdata/"
+      # leading path should be the <outdir> argument passed to efficient_frames_extracting.py
+      # a `frames` directory containing the extracted frames should be directly below this leading directory path 
+      - <yourdataoutdir>:/data
+      # path to yolov7 submodule (leave as is unless you have cloned yolov7 elsewhere)
       - ./yolov7/runs:/yolov7/runs
     environment:
       - PYTHONUNBUFFERED=1
@@ -12,8 +17,8 @@ services:
       [
         "detect.py",
         "--source",
-        "/data/images", # path to your folder with images
-        #"/data/video", # you can regognize objects in video files with this model too
+        "/data/frames", # path to mounted volume containing video frames
+        #"/data/video", # you can recognize objects in video files with this model too
         "--weights",
         "/yolov7/runs/train/exp6/weights/last.pt", # path to your weights file
         "--conf",

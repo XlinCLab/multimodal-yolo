@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(mes
 logger = logging.getLogger(__name__)
 
 
-OUTSUBDIR = "images"
+OUTSUBDIR = "frames"
 
 
 def extract_frames(video_path: str, video_frames: pd.DataFrame, outdir: str = ""):
@@ -35,7 +35,7 @@ def extract_frames(video_path: str, video_frames: pd.DataFrame, outdir: str = ""
         if not ret:
             break  # Break if the frame can't be read
         #the frames will be saved in the folder 'frames_to_recognize' in the root folder
-        frame_filename = os.path.join(outdir, f'{OUTSUBDIR}/set{participant}_session{session}_frame_{frame_number}.jpg')
+        frame_filename = os.path.join(outdir, OUTSUBDIR, f'set{participant}_session{session}_frame_{frame_number}.jpg')
         frame_dirname = os.path.dirname(frame_filename)
         os.makedirs(frame_dirname, exist_ok=True)
         cv2.imwrite(frame_filename, frame)
