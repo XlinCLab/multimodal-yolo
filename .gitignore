@@ -4,3 +4,4 @@ yolov7/*
 .DS_Store
 *.cache
 .venv/
+**/*.log
