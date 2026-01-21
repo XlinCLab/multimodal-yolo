@@ -15,6 +15,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s %(levelname
 logger = logging.getLogger(__name__)
 
 
+OUTSUBDIR = "images"
+
+
 def extract_frames(video_path: str, video_frames: pd.DataFrame, outdir: str = ""):
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
@@ -32,7 +35,7 @@ def extract_frames(video_path: str, video_frames: pd.DataFrame, outdir: str = ""
         if not ret:
             break  # Break if the frame can't be read
         #the frames will be saved in the folder 'frames_to_recognize' in the root folder
-        frame_filename = os.path.join(outdir, f'data/images/set{participant}_session{session}_frame_{frame_number}.jpg')
+        frame_filename = os.path.join(outdir, f'{OUTSUBDIR}/set{participant}_session{session}_frame_{frame_number}.jpg')
         frame_dirname = os.path.dirname(frame_filename)
         os.makedirs(frame_dirname, exist_ok=True)
         cv2.imwrite(frame_filename, frame)
@@ -41,7 +44,40 @@ def extract_frames(video_path: str, video_frames: pd.DataFrame, outdir: str = ""
     cap.release()
 
 
+def create_outdir(outdir) -> None:
+    """Create a new outdir and verify that it will not unintentionally overwrite an existing outdir."""
+    if os.path.exists(outdir):
+        if os.path.isdir(outdir):
+            contents = os.listdir(outdir)
+            if OUTSUBDIR in contents and len(os.listdir(os.path.join(outdir, OUTSUBDIR))) > 0:
+                logger.warning(f"Specified outdir {outdir} already exists and is not empty!")
+                overwrite = ""
+                while overwrite not in ["y", "n"]:
+                    overwrite = input("Continue? Note that this may overwrite existing data! [Y/N]")
+                    overwrite = overwrite.lower().strip()
+                    if len(overwrite) > 0:
+                        overwrite = overwrite[0]
+                if overwrite == "y":
+                    os.makedirs(outdir, exist_ok=True)
+                else:
+                    logger.error("Aborting. Please rerun with a different specified outdir.")
+
+            else:
+                os.makedirs(outdir, exist_ok=True)
+        else:
+            raise FileExistsError(f"Specified outdir {outdir} already exists and is a file")
+    else:
+        os.makedirs(outdir)
+
+
 def main(input_csv: str, outdir: str, max_workers: int = 4, sep: str = ","):
+    # Create outdir and check that results will not be accidentally overwritten
+    create_outdir(outdir)
+
+    # Initialize logging to log file
+    file_handler = logging.FileHandler(os.path.join(outdir, "frame_extraction.log"))
+    logger.addHandler(file_handler)
+
     # Read the CSV file with corrected frame numbers (at least 5 April tags)
     # path to you root folder (as in Julia pipeline)
     frames = pd.read_csv(os.path.abspath(input_csv), sep=sep)
