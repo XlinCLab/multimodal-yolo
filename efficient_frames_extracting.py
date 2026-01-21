@@ -1,3 +1,5 @@
+#!./.venv/bin/python
+
 # this code extracts frames from videos of a matcher by numbers from the .csv file with corrected target frames
 # later we will use them for object recognition
 
