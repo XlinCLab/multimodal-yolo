@@ -3,12 +3,18 @@ This repository has a Python script to extract frames of interest, recognize obj
 We will get object positions by matching object pixel coordinates to surface coordinates in the main pipeline in Julia.
 
 # Setup
-To run the model you need to have installed Docker. Please find the instructions here: https://www.docker.com
+To run the model you need to have the following installed on your machine:
+- [Docker](https://www.docker.com)
+- [Python 3](https://www.python.org/downloads/)
 
-## Python setup
-To run the Python script, you need to install the dependencies into a virtual environment. To achieve this, run the following command:
+A setup script is provided which then sets up a Python virtual environment and initializes and pulls files in `git lfs` (large file storage, see more detailed instructions below for manual setup). This can be achieved by running the following command:
 ```bash
-./setup_venv.sh && source .venv/bin/activate
+./setup.sh && source .venv/bin/activate
+```
+
+To reactivate the virtual environment after it has been created the first time:
+```bash
+source .venv/bin/activate
 ```
 
 ## Downloading weights for pretrained models
