@@ -20,7 +20,9 @@ WORKDIR /yolov7
 RUN sed -i 's|^torch.*|torch==2.5.0|' requirements.txt \
  && sed -i 's|^torchvision.*|torchvision==0.20.0|' requirements.txt \
  && sed -i 's|^torchaudio.*|torchaudio==2.5.0|' requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    -r requirements.txt
 
 # install opencv
 RUN pip install --no-cache-dir opencv-python-headless
