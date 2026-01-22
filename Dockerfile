@@ -11,18 +11,19 @@ RUN apt-get update && apt-get install -y \
 # Install Python dependencies
 # NB: as of January 2026, YOLOv7 has still not been updated to be compatible with PyTorch >=2.6
 # Incompatible due to change in weights_only argument for torch.load in torch=2.6
-# Modify the requirements.txt line specifying torch and torchivision versions
-# to restrict to a version before the incompatibility
+# Explicitly install the desired (compatible versions) and then remove the lines of requirements.txt specifying torch and torchivision versions
+# Then install remaining dependencies as normal
 # This workaround can be removed if YOLOv7 is updated such that the incompatibility is fixed  
 # see for example: https://github.com/WongKinYiu/yolov7/issues/2119
 COPY yolov7 /yolov7
 WORKDIR /yolov7
-RUN sed -i 's|^torch.*|torch==2.5.0|' requirements.txt \
- && sed -i 's|^torchvision.*|torchvision==0.20.0|' requirements.txt \
- && sed -i 's|^torchaudio.*|torchaudio==2.5.0|' requirements.txt
 RUN pip install --no-cache-dir \
-    --extra-index-url https://download.pytorch.org/whl/cpu \
-    -r requirements.txt
+    torch==2.5.0+cpu \
+    torchvision==0.20.0+cpu \
+    torchaudio==2.5.0+cpu \
+    --index-url https://download.pytorch.org/whl/cpu
+RUN sed -i '/torch/d;/torchvision/d;/torchaudio/d' requirements.txt \
+    && pip install --no-cache-dir -r requirements.txt
 
 # install opencv
 RUN pip install --no-cache-dir opencv-python-headless
