@@ -17,8 +17,9 @@ RUN apt-get update && apt-get install -y \
 # see for example: https://github.com/WongKinYiu/yolov7/issues/2119
 COPY yolov7 /yolov7
 WORKDIR /yolov7
-RUN sed -i 's|^torch.*|torch>=1.7.0,<2.6.0,!=1.12.0|' requirements.txt \
- && sed -i 's|^torchvision.*|torchvision>=0.8.1,<0.20,!=0.13.0|' requirements.txt
+RUN sed -i 's|^torch.*|torch==2.5.0|' requirements.txt \
+ && sed -i 's|^torchvision.*|torchvision==0.20.0|' requirements.txt \
+ && sed -i 's|^torchaudio.*|torchaudio==2.5.0|' requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # install opencv
