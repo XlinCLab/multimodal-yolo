@@ -27,9 +27,9 @@ services:
   #     "640",
         "--save-txt", # save results to .txt - these will be your yolo coordinates files
         "--project", 
-        "/data/results", # path to your folder for saving results
+        "/data", # root directory under which YOLO results will be saved
         "--name", 
-        "output" # name of the output folder
+        "yolo_results" # name of the output folder for YOLO results under root directory
       ]
       # memory limit that you can set for the container
     shm_size: "24gb"
