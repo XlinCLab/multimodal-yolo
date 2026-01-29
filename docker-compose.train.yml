@@ -2,8 +2,9 @@ services:
   yolov7:
     build: .
     volumes:
-      - ./data:/data
-      - ./yolov7/runs:/yolov7/runs # path to your folder with weights and other results
+      - ./data:/data  # TODO to be updated
+      # path to yolov7 submodule (leave as is unless you have cloned yolov7 elsewhere)
+      - ./yolov7/runs:/yolov7/runs
     environment:
       - PYTHONUNBUFFERED=1
     command:

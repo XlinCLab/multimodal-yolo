@@ -3,14 +3,15 @@ services:
     build: .
     volumes:
       # path to your folder containing extracted video frames
-      # replace "<yourdataoutdir>" with leading path e.g. "/home/username/Documents/testdata/"
-      # leading path should be the <outdir> argument passed to efficient_frames_extracting.py
+      # replace "<yourdatadir>" with leading path e.g. "/home/username/Documents/testdata/"
+      # leading path should be the same as the <outdir> argument passed to extract_video_frames.py
       # a `frames` directory containing the extracted frames should be directly below this leading directory path 
-      - <yourdataoutdir>:/data
+      - <yourdatadir>:/data
+      # path to pretrained YOLO model
+      # replace "<youryolomodel>" with path to directory containing pretrained model's data.yaml and weights.pt files 
+      - <youryolomodel>:/yolo_model
       # path to yolov7 submodule (leave as is unless you have cloned yolov7 elsewhere)
       - ./yolov7/runs:/yolov7/runs
-      # path to pretrained weights
-      - ./pretrained_weights:/pretrained_weights
     environment:
       - PYTHONUNBUFFERED=1
     command:
@@ -20,7 +21,7 @@ services:
         "/data/frames", # path to mounted volume containing video frames
         #"/data/video", # you can recognize objects in video files with this model too
         "--weights",
-        "/pretrained_weights/last.pt", # path to your weights file
+        "/yolo_model/weights.pt", # path to your pretrained model's weights file
         "--conf",
         "0.30",  # confidence threshold (default is 0.25)
   #     "--img-size",

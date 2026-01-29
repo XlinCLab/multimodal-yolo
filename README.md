@@ -18,7 +18,7 @@ source .venv/bin/activate
 ```
 
 ## Downloading weights for pretrained models
-Weights for pretrained models are saved using [Git LFS (Large File Storage)](https://git-lfs.com/) under `pretrained_weights`.
+Weights for pretrained models are saved using [Git LFS (Large File Storage)](https://git-lfs.com/).
 
 After cloning the repository, make sure Git LFS is installed on your system:
 ```
@@ -61,12 +61,14 @@ python extract_video_frames.py --input_csv /path/to/your/frame_numbers_corrected
 ```
 This script will extract the frames from the videos in parallel (specify more or less parallelization according to your available CPU with the `--max_workers` argument), and save them to a directory `frames` below a specified output directory (`--outdir` argument).
 
-Ensure your `docker-compose.detect.yml` file has the correct path to the directory containing these frames (`--outdir` argument to the Python script) under the `volumes` section, e.g.:
+Ensure your `docker-compose.detect.yml` file has the correct path to the directory containing these frames (`--outdir` argument to the Python script) under the `volumes` section. Likewise, ensure the `docker-compose.detect.yml` file points to the pretrained YOLO model directory, which should contain a `data.yaml` file defining the model's output labels as well as the model's `weights.pt` file produced from model training.
+
+Simply replace `<yourdatadir>` and `<youryolomodel>` with the respective real paths. For example:
 ```yml
     volumes:
       - /path/to/your/outdir:/data
+      - /path/to/your/pretrained/yolo/model:/yolo_model
 ```
-Likewise, ensure the `docker-compose.detect.yml` file points to the (pretrained) weights `.pt` file which model training produced. The simplest way to achieve this is to copy this file into the `pretrained_weights` subfolder of this repo (if not already there), whose contents are automatically mounted as a volume to the Docker container.
 
 ## Object recognition
 Then object positions can be detected in these video frames using the YOLO computer vision model. Ensure that the `docker-compose.detect.yml` has the right path to the weights for the model and the right path to your folder with the frames.

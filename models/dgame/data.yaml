@@ -1,5 +1,5 @@
-train: /data/dataset/images/train
-val: /data/dataset/images/val
+train: /data/dataset/images/train     # TODO to be updated
+val: /data/dataset/images/val         # TODO to be updated
 
 # Number of classes
 nc: 8
