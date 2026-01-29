@@ -61,7 +61,7 @@ python extract_video_frames.py --input_csv /path/to/your/frame_numbers_corrected
 ```
 This script will extract the frames from the videos in parallel (specify more or less parallelization according to your available CPU with the `--max_workers` argument), and save them to a directory `frames` below a specified output directory (`--outdir` argument).
 
-Ensure your `docker-compose.detect.yml` file has the correct path to the directory containing these frames (`--outdir` argument to the Python script) under the `volumes` section. Likewise, ensure the `docker-compose.detect.yml` file points to the pretrained YOLO model directory, which should contain a `data.yaml` file defining the model's output labels as well as the model's `weights.pt` file produced from model training.
+Ensure your `docker-compose.detect.yml` file has the correct path to the directory containing these frames (`--outdir` argument to the Python script) under the `volumes` section. Likewise, ensure the `docker-compose.detect.yml` file points to the pretrained YOLO model directory, which should contain a `model.yaml` file defining the model's output labels as well as the model's `weights.pt` file produced from model training.
 
 Simply replace `<yourdatadir>` and `<youryolomodel>` with the respective real paths. For example:
 ```yml
