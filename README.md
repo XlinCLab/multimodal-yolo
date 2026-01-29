@@ -55,9 +55,9 @@ docker compose -f docker-compose.train.yml up
 ## Video frames extraction
 The Python frame extraction module is used after you have created the `frame_numbers_corrected_with_tokens.csv` file with the aggregated data on all points of interest that you have in the experiment. Initially, these are moments of the target object onset pronounced by the director. 
 
-Once this file is ready, pass its path as the `--input_csv` input argument to `efficient_frames_extracting.py`, e.g.
+Once this file is ready, pass its path as the `--input_csv` input argument to `extract_video_frames.py`, e.g.
 ```bash
-python efficient_frames_extracting.py --input_csv /path/to/your/frame_numbers_corrected_with_tokens.csv --outdir /path/to/data/output/directory --max_workers 4
+python extract_video_frames.py --input_csv /path/to/your/frame_numbers_corrected_with_tokens.csv --outdir /path/to/data/output/directory --max_workers 4
 ```
 This script will extract the frames from the videos in parallel (specify more or less parallelization according to your available CPU with the `--max_workers` argument), and save them to a directory `frames` below a specified output directory (`--outdir` argument).
 
