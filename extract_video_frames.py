@@ -28,6 +28,7 @@ def extract_frames(video_path: str, video_frames: pd.DataFrame, outdir: str = ""
     participant = video_frames['participant'].iloc[0]
     session = video_frames['session'].iloc[0]
 
+    n_extracted = 0
     for frame_number in frame_numbers:
         # Directly jump to the frame of interest
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
@@ -35,13 +36,15 @@ def extract_frames(video_path: str, video_frames: pd.DataFrame, outdir: str = ""
         if not ret:
             break  # Break if the frame can't be read
         #the frames will be saved in the folder 'frames_to_recognize' in the root folder
-        frame_filename = os.path.join(outdir, OUTSUBDIR, f'set{participant}_session{session}_frame_{frame_number}.jpg')
+        frame_filename = os.path.join(outdir, f'set{participant}_session{session}_frame_{frame_number}.jpg')
         frame_dirname = os.path.dirname(frame_filename)
         os.makedirs(frame_dirname, exist_ok=True)
         cv2.imwrite(frame_filename, frame)
-        logger.info(f'Saved {frame_filename}')
+        logger.debug(f'Saved frame {frame_number} to {frame_filename}')
+        n_extracted += 1
 
     cap.release()
+    logger.info(f"Extracted {n_extracted} frames from {video_path}")
 
 
 def create_outdir(outdir) -> None:
@@ -68,32 +71,42 @@ def create_outdir(outdir) -> None:
             raise FileExistsError(f"Specified outdir {outdir} already exists and is a file")
     else:
         os.makedirs(outdir)
+    return os.path.join(outdir, OUTSUBDIR)
 
 
-def main(input_csv: str, outdir: str, max_workers: int = 4, sep: str = ","):
+def main(input_csv: str, outdir: str, max_workers: int = 4, sep: str = ",", logdir: str = None):
     # Create outdir and check that results will not be accidentally overwritten
     try:
-        create_outdir(outdir)
+        outdir = create_outdir(outdir)
     except FileExistsError as e:
         raise FileExistsError("Aborting. Please rerun with a different specified outdir.") from e
 
     # Initialize logging to log file
-    file_handler = logging.FileHandler(os.path.join(outdir, "frame_extraction.log"))
+    if logdir is None:
+        logdir = os.path.join(outdir, "logs")
+    os.makedirs(logdir, exist_ok=True)
+    file_handler = logging.FileHandler(os.path.join(logdir, "video_frame_extraction.log"))
     file_handler.setFormatter(logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s'
     ))
     logger.addHandler(file_handler)
+    logger.info(f"Extracting video frames to: {outdir}")
 
     # Read the CSV file with corrected frame numbers (at least 5 April tags)
     # path to you root folder (as in Julia pipeline)
     frames = pd.read_csv(os.path.abspath(input_csv), sep=sep)
     set_session = frames.groupby('video_path')
 
+    # Reduce max workers if the machine has fewer than specified
+    cpu_count = os.cpu_count()
+    if cpu_count < max_workers:
+        logger.warning(f"Reducing max_workers to {cpu_count}")
+        max_workers = cpu_count
     # Use ThreadPoolExecutor to process videos in parallel
     futures = {}
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         for video_path, video_frames in set_session:
-            logger.info(f"Submitting job <extract_frames> with:\n\tvideo_path={video_path}")
+            logger.debug(f"Submitting job <extract_frames> with:\n\tvideo_path={video_path}")
             future = executor.submit(
                 extract_frames, video_path, video_frames, outdir
             )
@@ -102,7 +115,6 @@ def main(input_csv: str, outdir: str, max_workers: int = 4, sep: str = ","):
     for future in as_completed(futures):
         video_path = futures[future]
         try:
-            result = future.result()
             logger.info(f"Frame extraction completed successfully for video {video_path}")
         except Exception as e:
             logger.error(f"Frame extraction failed for video {video_path}\nFull error:", e)
@@ -111,11 +123,13 @@ def main(input_csv: str, outdir: str, max_workers: int = 4, sep: str = ","):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Extract video frames of interest.")  # TODO improve description
     parser.add_argument('--input_csv', help='Path to input CSV file with (corrected) frame numbers')
-    parser.add_argument('--outdir', help='Path to directory where files should be output')
+    parser.add_argument('--outdir', help='Path to directory where result files should be output')
+    parser.add_argument('--logdir', default=None, help='Path to directory where log files should be saved')
     parser.add_argument('--max_workers', default=4, help='Max workers for parallelization (adjust according to available CPU)')
     args = parser.parse_args()
     main(
         input_csv=args.input_csv, 
         outdir=args.outdir,
+        logdir=args.logdir,
         max_workers=args.max_workers
     )
