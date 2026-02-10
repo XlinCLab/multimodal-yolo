@@ -121,7 +121,7 @@ def main(input_csv: str, outdir: str, max_workers: int = 4, sep: str = ",", logd
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("Extract video frames of interest.")  # TODO improve description
+    parser = argparse.ArgumentParser("Extract video frames of interest.")
     parser.add_argument('--input_csv', help='Path to input CSV file with (corrected) frame numbers')
     parser.add_argument('--outdir', help='Path to directory where result files should be output')
     parser.add_argument('--logdir', default=None, help='Path to directory where log files should be saved')
