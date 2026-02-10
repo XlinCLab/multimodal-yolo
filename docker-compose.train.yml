@@ -1,20 +1,23 @@
-version: "3.8"
-
 services:
   yolov7:
     build: .
     volumes:
-      - ./data:/data
-      - ./yolov7/runs:/yolov7/runs # path to your folder with weights and other results
+      # path to model directory containing model.yaml
+      - <youryolomodel>:/model
+      # path to training and validation data for model
+      # NB: further (mounted) paths within this directory to be specified in model.yaml via `train` and `val` 
+      - <yourmodeldata>:/data
+      # path to yolov7 submodule (leave as is unless you have cloned yolov7 elsewhere)
+      - ./yolov7/runs:/yolov7/runs
     environment:
       - PYTHONUNBUFFERED=1
     command:
       [
         "train.py",
         "--data",
-        "/data/dataset/data.yaml",
-        "--weights",
-        "/yolov7/runs/train/exp5/weights/best.pt",
+        "/model/model.yaml",
+        # "--weights",
+        # "/yolov7/runs/train/exp5/weights/best.pt",
         "--cfg",
         "cfg/training/yolov7.yaml",
         "--epochs",

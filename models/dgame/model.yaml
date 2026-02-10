@@ -1,0 +1,12 @@
+# Paths to mounted volumes with training/validation data
+# NB: Directory containing training/validationd data will be mounted inside Docker container as /data
+# so e.g. /home/projects/multimodal-yolo/experiments/modeldata/images/train
+# would be replaced with just /data/images/train below
+# This containing directory is expected to be specified where <yourmodeldata> appears in docker-compose.train.yml 
+train: /data/images/train
+val: /data/images/val
+
+# Number of classes
+nc: 8
+# Names of object classes
+names: ["batterie","blume","creme","kerze", "spritze", "tasse","tube", "vase"]

@@ -1,10 +1,16 @@
-version: "3.8"
-
 services:
   yolov7:
     build: .
     volumes:
-      - ./data:/data
+      # path to your folder containing extracted video frames
+      # replace "<yourdatadir>" with leading path e.g. "/home/username/Documents/testdata/"
+      # leading path should be the same as the <outdir> argument passed to extract_video_frames.py
+      # a `frames` directory containing the extracted frames should be directly below this leading directory path 
+      - <yourdatadir>:/data
+      # path to pretrained YOLO model
+      # replace "<youryolomodel>" with path to directory containing pretrained model's data.yaml and weights.pt files 
+      - <youryolomodel>:/yolo_model
+      # path to yolov7 submodule (leave as is unless you have cloned yolov7 elsewhere)
       - ./yolov7/runs:/yolov7/runs
     environment:
       - PYTHONUNBUFFERED=1
@@ -12,19 +18,19 @@ services:
       [
         "detect.py",
         "--source",
-        "/data/images", # path to your folder with images
-        #"/data/video", # you can regognize objects in video files with this model too
+        "/data/frames", # path to mounted volume containing video frames
+        #"/data/video", # you can recognize objects in video files with this model too
         "--weights",
-        "/yolov7/runs/train/exp6/weights/last.pt", # path to your weights file
+        "/yolo_model/weights.pt", # path to your pretrained model's weights file
         "--conf",
         "0.30",  # confidence threshold (default is 0.25)
   #     "--img-size",
   #     "640",
         "--save-txt", # save results to .txt - these will be your yolo coordinates files
         "--project", 
-        "/data/results", # path to your folder for saving results
+        "/data", # root directory under which YOLO results will be saved
         "--name", 
-        "output" # name of the output folder
+        "yolo_results" # name of the output folder for YOLO results under root directory
       ]
       # memory limit that you can set for the container
     shm_size: "24gb"
