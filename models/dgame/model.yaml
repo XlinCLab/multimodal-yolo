@@ -1,5 +1,10 @@
-train: /data/dataset/images/train     # TODO to be updated
-val: /data/dataset/images/val         # TODO to be updated
+# Paths to mounted volumes with training/validation data
+# NB: Directory containing training/validationd data will be mounted inside Docker container as /data
+# so e.g. /home/projects/multimodal-yolo/experiments/modeldata/images/train
+# would be replaced with just /data/images/train below
+# This containing directory is expected to be specified where <yourmodeldata> appears in docker-compose.train.yml 
+train: /data/images/train
+val: /data/images/val
 
 # Number of classes
 nc: 8

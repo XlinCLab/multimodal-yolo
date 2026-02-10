@@ -2,7 +2,11 @@ services:
   yolov7:
     build: .
     volumes:
-      - ./data:/data  # TODO to be updated
+      # path to model directory containing model.yaml
+      - <youryolomodel>:/model
+      # path to training and validation data for model
+      # NB: further (mounted) paths within this directory to be specified in model.yaml via `train` and `val` 
+      - <yourmodeldata>:/data
       # path to yolov7 submodule (leave as is unless you have cloned yolov7 elsewhere)
       - ./yolov7/runs:/yolov7/runs
     environment:
@@ -11,7 +15,7 @@ services:
       [
         "train.py",
         "--data",
-        "/data/dataset/model.yaml",
+        "/model/model.yaml",
         # "--weights",
         # "/yolov7/runs/train/exp5/weights/best.pt",
         "--cfg",

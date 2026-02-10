@@ -1,5 +1,24 @@
+# multimodal-yolo
+
+## Table of Contents
+* [Introduction](#introduction)
+    * [Video tutorial](#video-tutorial)
+* [Setup](#setup)
+* [Downloading weights for pretrained models](#downloading-weights-for-pretrained-models)
+* [Training a new object recognition model](#training-a-new-object-recognition-model)
+    * [YOLO data annotation](#yolo-data-annotation)
+    * [YOLO model training](#yolo-model-training)
+* [Running a (pre)trained object recognition model](#running-a-pretrained-object-recognition-model)
+    * [Video frames extraction](#video-frames-extraction)
+    * [Object recognition](#object-recognition)
+
 # Introduction
 This repository contains tools for video frame extraction and `YOLO` computer vision object detection from video frames. It is designed to be used as a component of the `julia` pipeline for the [`multimodal`](https://github.com/XlinCLab/multimodal) project for processing multimodal, naturalistic data from DGAME experiments. See more in the main project's README [here](https://github.com/XlinCLab/multimodal/blob/main/README.md).
+
+## Video tutorial
+See this [this video walkthrough](https://youtu.be/bWNy26O7Sow) for a tutorial/demo and further details by the original author. 
+
+NB: Some details in the video may be outdated due to subsequent code revisions.
 
 # Setup
 To use these tools you need to have the following installed on your machine:
@@ -38,6 +57,7 @@ git lfs ls-files
 ```
 
 # Training a new object recognition model
+## YOLO data annotation
 If you want to train your own object recognition model, you will need to annotate around 250 pictures in [YOLO format](https://roboflow.com/formats/yolo), for example using [this annotator from LabelStudio](https://hub.docker.com/r/heartexlabs/label-studio). Run the annotator in Docker using the following commands:
 ```
 docker pull heartexlabs/label-studio:latest
@@ -46,13 +66,37 @@ docker run -it -p 8080:8080 -v `pwd`/mydata:/label-studio/data heartexlabs/label
 ```
 Then open http://0.0.0.0:8080/ in a web browser to access the annotator. Note that you may first need to create an account with [LabelStudio](http://0.0.0.0:8080/user/login/).
 
-To train the model on your annotated data, run:
+## YOLO model training
+To train the model on your annotated data, first set up a model spec `model.yaml` file and then adjust `docker-compose.train.yml` with the paths to your model specification directory (containing `model.yaml`) and to the model's training/validation data. 
+
+The `model.yaml` file is structured as shown below. The directory containing training and validation data will be mounted as `/data` inside the Docker container (see further below) and therefore the paths specified with `train` and `val` should replace this containing directory with `/data`, as shown below. The number of object classes should be specified as `nc` and the object labels as `names`. 
+```yml
+train: /data/images/train
+val: /data/images/val
+
+# Number of classes
+nc: 3
+# Names of object classes
+names: ["apple", "orange", "tomato"]
+```
+
+
+In `docker-compose.train.yml`, replace `<yourmodeldata>` and `<youryolomodel>` with the real paths to, respectively, the folder containing training and validation data and to the folder containing model spec. For example:
+```yml
+    volumes:
+      - /path/to/your/data:/data
+      - /path/to/your/model/spec:/model
+```
+
+The path with which you replace `<yourmodeldata>` will be mounted as a volume inside a Docker container as `/data` and the folder containing the model spec will be moounted as `/model`.
+
+Once the above is complete, run:
 ```
 docker compose -f docker-compose.train.yml build                                               
 docker compose -f docker-compose.train.yml up
 ```
 
-# Running model components
+# Running a (pre)trained object recognition model
 ## Video frames extraction
 The [Python frame extraction module](./extract_video_frames.py) is intended to be used after running the [main `multimodal` pipeline's first component](https://github.com/XlinCLab/multimodal?tab=readme-ov-file#part-1-data-preprocessing-identification-of-relevant-time-windows-and-optimal-video-frame-selection) and having generated a `frame_numbers_corrected_with_tokens.csv` file with aggregated data on all timepoints of interest. Typically, these are the timepoints corresponding with the onset of a target object's name pronounced by the "Director". (For more background, see main project's README [here](https://github.com/XlinCLab/multimodal/blob/main/README.md).)
 
@@ -83,7 +127,3 @@ Note that (depending on your machine) running the `build` command may take upwar
 
 This will create a subfolder `yolo_results` within the same directory where the input data are located. The path to this folder is then required for [part 3 of the main `multimodal` pipeline](https://github.com/XlinCLab/multimodal?tab=readme-ov-file#part-3-object-position-detection-and-postprocessing). Within this folder are copies of the input video frames (`.jpg` files) with detected objects labeled and inside bounding boxes, as well as a  `labels` subfolder containing text files with pixel object coordinates for all detected objects in each video frame.
 
-# Video tutorial
-See this [this video walkthrough](https://youtu.be/bWNy26O7Sow) for a tutorial/demo and further details by the original author. 
-
-NB: Some details in the video may be outdated due to subsequent code revisions.
