@@ -1,13 +1,14 @@
 # Introduction
-This repository has a Python script to extract frames of interest, recognize objects on a DGAME shelf, and get pixel coordinates for each object.
-We will get object positions by matching object pixel coordinates to surface coordinates in the main pipeline in Julia.
+This repository contains tools for video frame extraction and `YOLO` computer vision object detection from video frames. It is designed to be used as a component of the `julia` pipeline for the [`multimodal`](https://github.com/XlinCLab/multimodal) project for processing multimodal, naturalistic data from DGAME experiments. See more in the main project's README [here](https://github.com/XlinCLab/multimodal/blob/main/README.md).
 
 # Setup
-To run the model you need to have the following installed on your machine:
+To use these tools you need to have the following installed on your machine:
 - [Docker](https://www.docker.com)
-- [Python 3](https://www.python.org/downloads/)
+    
+    - NB: If using MacOS or Windows, you must explicitly open the Docker or Docker Desktop application before running `docker` commands.
+- [Python 3](https://www.python.org/downloads/) [tested with Python 3.12.3]
 
-A setup script is provided which then sets up a Python virtual environment and initializes and pulls files in `git lfs` (large file storage, see more detailed instructions below for manual setup). This can be achieved by running the following command:
+Provided that these have been installed, the setup script `setup.sh` then creates a Python virtual environment and fetches files in `git lfs` (large file storage, see more detailed instructions below for manual setup). This can be achieved by running the following command:
 ```bash
 ./setup.sh && source .venv/bin/activate
 ```
@@ -18,9 +19,9 @@ source .venv/bin/activate
 ```
 
 ## Downloading weights for pretrained models
-Weights for pretrained models are saved using [Git LFS (Large File Storage)](https://git-lfs.com/).
+Weights for pretrained models are saved using [Git LFS (Large File Storage)](https://git-lfs.com/) in the `models/` directory.
 
-After cloning the repository, make sure Git LFS is installed on your system:
+After cloning this repository, make sure Git LFS is installed on your system:
 ```
 git lfs install
 ```
@@ -53,7 +54,7 @@ docker compose -f docker-compose.train.yml up
 
 # Running model components
 ## Video frames extraction
-The Python frame extraction module is used after you have created the `frame_numbers_corrected_with_tokens.csv` file with the aggregated data on all points of interest that you have in the experiment. Initially, these are moments of the target object onset pronounced by the director. 
+The [Python frame extraction module](./extract_video_frames.py) is intended to be used after running the [main `multimodal` pipeline's first component](https://github.com/XlinCLab/multimodal?tab=readme-ov-file#part-1-data-preprocessing-identification-of-relevant-time-windows-and-optimal-video-frame-selection) and having generated a `frame_numbers_corrected_with_tokens.csv` file with aggregated data on all timepoints of interest. Typically, these are the timepoints corresponding with the onset of a target object's name pronounced by the "Director". (For more background, see main project's README [here](https://github.com/XlinCLab/multimodal/blob/main/README.md).)
 
 Once this file is ready, pass its path as the `--input_csv` input argument to `extract_video_frames.py`, e.g.
 ```bash
@@ -61,7 +62,8 @@ python extract_video_frames.py --input_csv /path/to/your/frame_numbers_corrected
 ```
 This script will extract the frames from the videos in parallel (specify more or less parallelization according to your available CPU with the `--max_workers` argument), and save them to a directory `frames` below a specified output directory (`--outdir` argument).
 
-Ensure your `docker-compose.detect.yml` file has the correct path to the directory containing these frames (`--outdir` argument to the Python script) under the `volumes` section. Likewise, ensure the `docker-compose.detect.yml` file points to the pretrained YOLO model directory, which should contain a `model.yaml` file defining the model's output labels as well as the model's `weights.pt` file produced from model training.
+## Object recognition
+Ensure your `docker-compose.detect.yml` file has the correct path to the directory containing the extracted frames (`--outdir` argument to the [Python script](#video-frames-extraction)) under the `volumes` section. Likewise, ensure the `docker-compose.detect.yml` file points to the pretrained YOLO model directory, which should contain a `model.yaml` file defining the model's output labels as well as the model's `weights.pt` file produced from model training.
 
 Simply replace `<yourdatadir>` and `<youryolomodel>` with the respective real paths. For example:
 ```yml
@@ -70,10 +72,7 @@ Simply replace `<yourdatadir>` and `<youryolomodel>` with the respective real pa
       - /path/to/your/pretrained/yolo/model:/yolo_model
 ```
 
-## Object recognition
-Then object positions can be detected in these video frames using the YOLO computer vision model. Ensure that the `docker-compose.detect.yml` has the right path to the weights for the model and the right path to your folder with the frames.
-
- To start detection, run the following two commands in the Terminal:
+Object positions can then be detected in these video frames using the specified pretrained YOLO computer vision model. To start detection, run the following two commands:
 
  ```bash
  docker compose -f docker-compose.detect.yml build
@@ -82,7 +81,9 @@ Then object positions can be detected in these video frames using the YOLO compu
 
 Note that (depending on your machine) running the `build` command may take upwards of 40 minutes to complete. 
 
-This will create a folder `labels` which will contain text files with pixel object coordinates for all objects for all frames. You will then need to insert the path to this folder into the `main.jl` file of the main pipeline.
+This will create a subfolder `yolo_results` within the same directory where the input data are located. The path to this folder is then required for [part 3 of the main `multimodal` pipeline](https://github.com/XlinCLab/multimodal?tab=readme-ov-file#part-3-object-position-detection-and-postprocessing). Within this folder are copies of the input video frames (`.jpg` files) with detected objects labeled and inside bounding boxes, as well as a  `labels` subfolder containing text files with pixel object coordinates for all detected objects in each video frame.
 
 # Video tutorial
-See this [this video walkthrough](https://youtu.be/bWNy26O7Sow) for a tutorial/demo and further details.
+See this [this video walkthrough](https://youtu.be/bWNy26O7Sow) for a tutorial/demo and further details by the original author. 
+
+NB: Some details in the video may be outdated due to subsequent code revisions.
